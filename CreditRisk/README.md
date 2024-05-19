@@ -9,5 +9,6 @@
 
 # RESULTS
 ## Sin balancear
-
+![resultado1](./Images/result1.png)
 ## Balanced Class Weights
+![resultado2](./Images/result2.png)
