@@ -1,5 +1,3 @@
-# ABOUT THIS REPOSITORY
-
 # PROJECTS
 ## 1. Credit Risk Model
 <img src="https://cdn.canadianmortgagetrends.com/wp-content/uploads/2023/03/Credit-score-tips-2023_med.jpg" width="1000" height="300">
