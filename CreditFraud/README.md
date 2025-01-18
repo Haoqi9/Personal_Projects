@@ -2,65 +2,94 @@
 
 - A model based on LightGBM Classifier to **detect credit fraud** has been developed.
 
-  - `credit_default_notebook.html`, covers from the target definition to data preprocessing.
-  - `2_Modeling.ipynb`, contains the modeling and evaluation phase.
-  - Finally, the **trained model has been deployed in a web application** where real-time predictions can be made.
-
-<h2 align="center">ACCESS TO WORK</h2>
-
-> [!NOTE]
-> If for any reason GitHub cannot display the Jupyter notebook, try the alternative link: **[Alternative Link]**.
-- Access the first notebook (**1_Preprocessing.ipynb**):
-  - `English version`: [[Link]](https://github.com/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/1_Preprocessing_en.ipynb) | [[Alternative Link]](https://nbviewer.org/github/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/1_Preprocessing_en.ipynb)
-  - `Spanish version`: [[Link]](https://github.com/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/1_Preprocessing_es.ipynb) | [[Alternative Link]](https://nbviewer.org/github/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/1_Preprocessing_es.ipynb)
-    
-- Access the second notebook (**2_Modeling.ipynb**):
-  - `English version`: [[Link]](https://github.com/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/2_Modeling_en.ipynb) | [[Alternative Link]](https://nbviewer.org/github/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/2_Modeling_en.ipynb)
-  - `Spanish version`: [[Link]](https://github.com/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/2_Modeling_es.ipynb) | [[Alternative Link]](https://nbviewer.org/github/Haoqi9/Personal_Projects/blob/master/CreditRisk/03_Notebooks/2_Modeling_es.ipynb)
-     
-- Access the streamlit web application (**Credit Risk Analyzer**):
-  - `English version`: [[Link]](https://creditriskwebappst-lmmesu5xdk4m45fu9icbmf.streamlit.app/)
+  - `script.py`, contains all development code.
+  - `credit_default_notebook.html`, full model development notebook in a visual html format so users can play with interactive plots (download to access).
+  - `my_funcs_prep.py`, contains custom preprocessing and EDA functions used in development script.
     
 <h2 align="center">SUMMARY</h2>
 
-## Business Problem
-- A financial institution wants to improve its risk assessment process and reduce losses associated with payment default. To address this challenge, it decides to develop **a credit default detection algorithm that can accurately identify customers who are most likely to default on their financial obligations**.
+## 1. Business Problem
+- **Customers of a banking company are experiencing fraudulent transactions, leading to dissatisfaction and potential financial losses**. To address this issue, the bank seeks to implement a machine learning solution that improves the monitoring of transactional activities on customer cards. The solution will assist a team of fraud analysts by prioritizing high-risk transactions for review.
 
-## Initial Features (24)
-- id_cliente, empleo, antigüedad_empleo, ingresos, ingresos_verificados,
-- rating, dti, vivienda, num_hipotecas, num_lineas_credito,
-- porc_tarjetas_75p, porc_uso_revolving, num_cancelaciones_12meses, num_derogatorios, num_meses_desde_ult_retraso,
-- id_prestamo, descripcion, finalidad, principal, tipo_interes,
-- num_cuotas, imp_cuota, imp_amortizado, imp_recuperado.
+## 2. Objective
+The primary goal is to **develop a binary classification model that predicts the likelihood of a transaction being fraudulent**. The model will:
+- Assign a fraud score to each transaction.
+- Help the fraud analysts prioritize up to 400 transactions per month for review.
+  
+## 3. Initial Features
+1. **transactionTime**: time the transaction was requested.
+1. **eventId**: unique identifying string for this transaction.
+1. **accountNumber**: account number which makes the transaction.
+1. **merchantId**: unique identifying string for this merchant.
+1. **mcc**: merchant category code of the merchant.
+1. **merchantCountry**: unique identifying string for the merchant's country.
+1. **merchantZip**: truncated zip code for the merchant's postal region.
+1. **posEntryMode**: Point Of Sale entry mode.
+1. **transactionAmount**: value of the transaction.
+1. **availableCash**: amount available to spend prior to the transaction.
 
-## Final Features (14)
-- antigüedad_empleo, dti, finalidad, ingresos, ingresos_verificados,
-- num_derogatorios, num_hipotecas, num_lineas_credito, porc_tarjetas_75p, porc_uso_revolving,
--  principal, rating, tipo_interes, vivienda.
+## 4. New Features (Feature Engineering)
+1. **year**: year the transaction was requested.
+1. **month**: month the transaction was requested.
+1. **day**: day the transaction was requested.
+1. **tnx_count_account**: total number of transactions associated with the account.
+1. **tnx_count_daily**: number of transactions associated with the account on the same day.
+1. **seconds_since_last_tnx**: time in seconds since the last recorded transaction for the account.
+1. **tnx_rolling7_max**: maximum transaction amount within the last 7 days.
+1. **tnx_rolling7_min**: minimum transaction amount within the last 7 days.
+1. **tnx_rolling7_avg**: average transaction amount within the last 7 days.
+1. **same_prev_tnx**: whether the current transaction amount matches the previous transaction amount.
+1. **same_prev_merch_loc**: whether the current merchant location matches the location of the previous transaction.
 
-## Model Selection 
-|Model|fit time (s)|accuracy|roc_auc|f1|precision|recall|
-|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-|GaussianNB|1.00|0.867|0.661|0.039|0.243|0.021|
-|LogisticRegression|8.62|0.872|0.521|0.000|0.025|0.000|
-|**LGBMClassifier**|**6.05**|**0.872**|**0.723**|**0.007**|**0.518**|**0.004**|
-|RandomForestClassifier|86.61|0.872|0.684|0.021|0.505|0.011|
+## 5. Challenges
+**Imbalanced data**: 
+  - Fraudulent transactions are rare compared to legitimate ones, making the dataset highly imbalanced; only 875 fraudulent transactions vs 117,746 legitimate ones. 
+  - Set *balanced class weights* for the models to give more importance to the minority class, penalizing misclassifications of minority fraudulent transactions more heavily.
 
-## Distribution of probability estimates
-### With Class Imbalance
-![pd1](./Images/pd1.png)
-### Balanced Class Weights
-![pd2](./Images/pd2.png)
-### Observations
-- Regarding the distribution of probability estimates of the model with default parameters and the other with balanced class weights, it is observed that **the distributions of the two classes are highly overlapping in both models, although in the model with balanced weights these distributions are more separated from each other**. We already knew that the model would have great difficulty in recognizing the 0s due to the small number of samples for that minority class and the available variables. Hence, the distribution for the 0s is more spread out.
+**Time series nature** of the transactional data:
+- Used *Timeseries split* to mantain temporal order in training data to avoid leakage of future information into the training set. 
 
-- In this particular case, **we are interested in prioritizing the identification of customers who are likely to default** rather than the confidence, which is also important, that they have already defaulted. However, it is not advisable to decrease the probability threshold to increase sensitivity (recall for the positive class) since the increase in false positives would drastically decrease precision. **We will leave the threshold at default value, 0.5**.
+## 6. Model Selection (tunned models)
+|Model|fit time (s)|train f1|val f1|
+|:-:|:-:|:-:|:-:|
+|LogisticRegression|17.37|0.078|0.089|
+|**LGBMClassifier**|**1.1**|**0.115**|**0.108**|
+|RandomForestClassifier|4.68|0.12|0.11|
 
-## Results
-### With Class Imbalance
-![resultado1](./Images/result1.png)
-### Balanced Class Weights
-![resultado2](./Images/result2.png)
-### Observations
-- As we had seen in the previous results, **the resulting model leaves much to be desired in terms of its ability to correctly detect defaults (positive class) with a recall close to 0%**, although **this metric can be raised to 70% in the model by balancing the classes by changing the class weights during training**. This improvement has been achieved at the expense of greatly sacrificing precision from 56% to 22% and the ability to detect customers who have not defaulted, from a recall for the negative class close to 100% to 64%. All this indicates that it is not possible to discriminate well between the two classes with the features present; there is a significant overlap in the probability distributions of the two classes.
+I **chose the LightGBMClassifier as the final model** for several reasons:
+1. it trains faster,
+2. the difference in F1 score between the RandomForestClassifier and LightGBMClassifier is marginal, and
+3. the train and validation scores for LightGBM are more similar to each other, indicating lower variance and potentially better generalization.
 
+```{python}
+# Best LightGBMClassifier model.
+lgbmc_rdsearch = LGBMClassifier(
+    objective='binary',
+    verbose=-1,
+    random_state=0,
+    class_weight='balanced',
+    n_estimators=50,
+    max_depth=3,
+    learning_rate=0.1
+)
+```
+## 7. Feature Importance
+![feat](./images/feature.png)
+
+The **top 10 most important features** based on feature importance provided by LGBM are:
+1. tnx_count_account.
+1. tnx_count_daily.
+1. merchantId_freq.
+1. posEntryMode_red_5.
+1. transactionAmount.
+1. availableCash.
+1. tnx_rolling7_max.
+1. tnx_rolling7_avg.
+1. mmc_freq.
+1. tnx_rolling7_min.
+
+## 8. Results
+![resultado1](./images/cf_test.png)
+- The model has identified 34 fraud transactions out of 39 (**recall of 0.87**) in a total of 8531 transactions. However, the **precision is extremely low at 0.03**, leading to 1219 false positives.
+
+![resultado2](./images/pred_scores.png)
