@@ -5,7 +5,7 @@
   - `script.py`, contains all development code.
   - `my_funcs_prep.py`, contains custom preprocessing and EDA functions used in development script.
   - `credit_default_notebook.html`, full model development notebook in a visual html format so users can play with interactive plots (download to access).
-    - Notebook preview: <br> ![preview](./images/notebook.png)
+    - Notebook preview: <br> ![preview](./images/GIF.gif)
     
 <h2 align="center">SUMMARY</h2>
 
